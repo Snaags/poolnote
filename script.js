@@ -499,6 +499,77 @@ canvas.addEventListener('mouseup', () => {
     }
 });
 
+canvas.addEventListener('touchstart', (event) => {
+    event.preventDefault(); // Prevent scrolling
+    const touch = event.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    balls.forEach(ball => {
+        const distance = Math.sqrt((x - ball.scaledX) ** 2 + (y - ball.scaledY) ** 2);
+        if (distance < ball.scaledSize) {
+            draggedBall = ball;
+            isDragging = true;
+        }
+    });
+}, { passive: false }); // Use passive: false to ensure the touch event doesn't get treated as passive.
+
+
+canvas.addEventListener('touchmove', (event) => {
+    if (draggedBall && isDragging) {
+        event.preventDefault(); // Prevent scrolling
+        const touch = event.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+
+        const tempX = (x - poolTable.xOffset) / poolTable.scaledWidth;
+        const tempY = (y - poolTable.yOffset) / poolTable.scaledLength;
+
+        if (!coordsHitsBoundary(x, y, draggedBall.size)) {
+            draggedBall.originalX = tempX;
+            draggedBall.originalY = tempY;
+            adjustBallPosition(draggedBall);
+        }
+
+        // Check for collisions with boundaries
+        if (ballHitsBoundary(draggedBall)) {
+            adjustBallPosition(draggedBall);
+        }
+
+        // Check for collisions with other balls
+        balls.forEach(ball => {
+            if (ball !== draggedBall && ballsCollide(draggedBall, ball)) {
+                const dx = ball.scaledX - draggedBall.scaledX;
+                const dy = ball.scaledY - draggedBall.scaledY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const overlap = (draggedBall.scaledSize / 2 + ball.scaledSize / 2) - distance;
+
+                if (distance !== 0) { // Avoid division by zero
+                    const adjustX = (dx / distance) * overlap;
+                    const adjustY = (dy / distance) * overlap;
+
+                    ball.originalX += adjustX / poolTable.scaledWidth;
+                    ball.originalY += adjustY / poolTable.scaledLength;
+                    if (ballHitsBoundary(ball)) {
+                        adjustBallPosition(ball);
+                    }
+                }
+            }
+        });
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => {
+    isDragging = false;
+    draggedBall = null;
+    if (isDraggingLine) {
+        isDraggingLine = false;
+        selectedBall = null;
+    }
+}, { passive: false });
+
 
 function calculateLineReflection(ball, mouseX, mouseY) {
     // Direction from ball to mouse
@@ -525,6 +596,9 @@ function calculateLineReflection(ball, mouseX, mouseY) {
     ball.lineEndX = reflectionX;
     ball.lineEndY = reflectionY;
 }
+
+
+
 
 function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max);
@@ -653,6 +727,25 @@ function coordsHitsBoundary(X,Y,size) {
 //    Math.min(scaledY,ball.size / 2 + topBound);
 //    Math.max(scaledy,bottomBound - ball.size / 2);
     
+canvas.addEventListener('click', handleClick);
+canvas.addEventListener('touchend', function(event) {
+    if (event.touches.length === 0) { // Ensure it's a tap, not the end of a drag
+        handleClick(event.changedTouches[0]);
+    }
+});
+
+function handleClick(event) {
+    const rect = canvas.getBoundingClientRect();
+    let x, y;
+    if (event.type === 'touchend') {
+        x = event.clientX - rect.left;
+        y = event.clientY - rect.top;
+    } else {
+        x = event.clientX - rect.left;
+        y = event.clientY - rect.top;
+    }
+    // Continue with your existing logic...
+}
 
 
 canvas.addEventListener('mousemove', (event) => {
@@ -710,75 +803,6 @@ canvas.addEventListener('click', (event) => {
         }
     }
 });
-
-canvas.addEventListener('click', handleClick);
-canvas.addEventListener('touchend', function(event) {
-    if (event.touches.length === 0) { // Ensure it's a tap, not the end of a drag
-        handleClick(event.changedTouches[0]);
-    }
-});
-
-function handleClick(event) {
-    const rect = canvas.getBoundingClientRect();
-    let x, y;
-    if (event.type === 'touchend') {
-        x = event.clientX - rect.left;
-        y = event.clientY - rect.top;
-    } else {
-        x = event.clientX - rect.left;
-        y = event.clientY - rect.top;
-    }
-    // Continue with your existing logic...
-}
-
-
-// Adjust the existing drag start event listener for both mouse and touch
-canvas.addEventListener('mousedown', startDrag);
-canvas.addEventListener('touchstart', function(event) {
-    event.preventDefault(); // Prevent scrolling/zooming
-    startDrag(event.touches[0]); // Pass the first touch event
-}, { passive: false }); // Disable passive listening to allow preventDefault
-
-function startDrag(event) {
-    const rect = canvas.getBoundingClientRect();
-    let x = event.clientX - rect.left;
-    let y = event.clientY - rect.top;
-
-    // Your existing logic to select and start dragging a ball...
-}
-
-// Adjust the existing drag move event listener for both mouse and touch
-canvas.addEventListener('mousemove', drag);
-canvas.addEventListener('touchmove', function(event) {
-    event.preventDefault(); // Prevent scrolling/zooming
-    drag(event.touches[0]); // Pass the first touch event
-}, { passive: false });
-
-function drag(event) {
-    if (!isDragging) return; // Exit if we're not dragging
-
-    const rect = canvas.getBoundingClientRect();
-    let x = event.clientX - rect.left;
-    let y = event.clientY - rect.top;
-
-    // Your existing logic to move the dragged ball...
-}
-
-// Adjust the existing drag end event listener for both mouse and touch
-canvas.addEventListener('mouseup', endDrag);
-canvas.addEventListener('touchend', function(event) {
-    event.preventDefault(); // Might not always be needed for touchend
-    endDrag(event.changedTouches[0]); // Pass the touch event that ended
-}, { passive: false });
-
-function endDrag(event) {
-    isDragging = false; // Set your dragging flag to false
-
-    // Additional logic you might have to finalize the drag...
-}
-
-
-
 
     function animate() {
         requestAnimationFrame(animate);
