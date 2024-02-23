@@ -653,30 +653,6 @@ function coordsHitsBoundary(X,Y,size) {
 //    Math.min(scaledY,ball.size / 2 + topBound);
 //    Math.max(scaledy,bottomBound - ball.size / 2);
     
-// Existing mouse event listener
-canvas.addEventListener('mousedown', handleMouseDown);
-
-// New touch event listener
-canvas.addEventListener('touchstart', function(event) {
-    event.preventDefault(); // Prevent scrolling/zooming on touch devices
-    handleMouseDown(event.touches[0]); // Pass the first touch event
-});
-
-function handleMouseDown(event) {
-    const rect = canvas.getBoundingClientRect();
-    let x, y;
-    if (event.type === 'touchstart') {
-        x = event.clientX - rect.left;
-        y = event.clientY - rect.top;
-    } else { // For mouse events
-        x = event.clientX - rect.left;
-        y = event.clientY - rect.top;
-    }
-
-    // The rest of your logic...
-}
-
-
 
 
 canvas.addEventListener('mousemove', (event) => {
@@ -734,6 +710,29 @@ canvas.addEventListener('click', (event) => {
         }
     }
 });
+
+canvas.addEventListener('click', handleClick);
+canvas.addEventListener('touchend', function(event) {
+    if (event.touches.length === 0) { // Ensure it's a tap, not the end of a drag
+        handleClick(event.changedTouches[0]);
+    }
+});
+
+function handleClick(event) {
+    const rect = canvas.getBoundingClientRect();
+    let x, y;
+    if (event.type === 'touchend') {
+        x = event.clientX - rect.left;
+        y = event.clientY - rect.top;
+    } else {
+        x = event.clientX - rect.left;
+        y = event.clientY - rect.top;
+    }
+    // Continue with your existing logic...
+}
+
+
+
 
     function animate() {
         requestAnimationFrame(animate);
