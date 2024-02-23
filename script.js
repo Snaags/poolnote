@@ -653,6 +653,31 @@ function coordsHitsBoundary(X,Y,size) {
 //    Math.min(scaledY,ball.size / 2 + topBound);
 //    Math.max(scaledy,bottomBound - ball.size / 2);
     
+// Existing mouse event listener
+canvas.addEventListener('mousedown', handleMouseDown);
+
+// New touch event listener
+canvas.addEventListener('touchstart', function(event) {
+    event.preventDefault(); // Prevent scrolling/zooming on touch devices
+    handleMouseDown(event.touches[0]); // Pass the first touch event
+});
+
+function handleMouseDown(event) {
+    const rect = canvas.getBoundingClientRect();
+    let x, y;
+    if (event.type === 'touchstart') {
+        x = event.clientX - rect.left;
+        y = event.clientY - rect.top;
+    } else { // For mouse events
+        x = event.clientX - rect.left;
+        y = event.clientY - rect.top;
+    }
+
+    // The rest of your logic...
+}
+
+
+
 
 canvas.addEventListener('mousemove', (event) => {
     const rect = canvas.getBoundingClientRect();
