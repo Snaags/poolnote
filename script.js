@@ -17,6 +17,50 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
+let currentMode = 'draw'; // Default mode
+
+document.getElementById('drawMode').addEventListener('click', () => {
+    currentMode = 'draw';
+    updateActiveModeUI();
+});
+
+document.getElementById('eraseMode').addEventListener('click', () => {
+    currentMode = 'erase';
+    updateActiveModeUI();
+});
+
+document.querySelectorAll('.colorMode').forEach(button => {
+    button.addEventListener('click', function() {
+        currentMode = 'color';
+        selectedColor = this.getAttribute('data-color');
+        updateActiveModeUI();
+    });
+});
+
+function updateActiveModeUI() {
+    // Reset all button styles
+    document.querySelectorAll('#toolbar button').forEach(button => {
+        button.classList.remove('active');
+    });
+
+    // Set active style for current mode
+    switch (currentMode) {
+        case 'draw':
+            document.getElementById('drawMode').classList.add('active');
+            break;
+        case 'erase':
+            document.getElementById('eraseMode').classList.add('active');
+            break;
+        case 'color':
+            document.querySelectorAll('.colorMode').forEach(button => {
+                if (button.getAttribute('data-color') === selectedColor) {
+                    button.classList.add('active');
+                }
+            });
+            break;
+    }
+}
+
 
 
 class Ball {
@@ -513,6 +557,17 @@ function drawBalls() {
     });
 }
 
+function eraseBall(x, y) {
+    console.log("in erase")
+    for (let i = 0; i < balls.length; i++) {
+        const distance = Math.sqrt(Math.pow(x - balls[i].scaledX, 2) + Math.pow(y - balls[i].scaledY, 2));
+        if (distance < balls[i].scaledSize / 2) {
+            balls.splice(i, 1); // Remove the ball from the array
+            break; // Exit the loop after finding the ball to erase
+        }
+    }
+}
+
 function ballsCollide(ball1, ball2) {
     const dx = ball1.scaledX - ball2.scaledX;
     const dy = ball1.scaledY - ball2.scaledY;
@@ -611,31 +666,6 @@ canvas.addEventListener('mousemove', (event) => {
 });
 
 
-canvas.addEventListener('click', (event) => {
-    const rect = canvas.getBoundingClientRect();
-    if (event.clientX - rect.top <= 40){
-        isDragging = false;
-    }
-
-    if (!isDragging) { // Only add a new ball if the user is not dragging        
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-
-        if (x <= 40) { // Check if click is on the selection bar
-            const index = Math.floor(y / 40);
-            if (index < colors.length) {
-                selectedColor = colors[index];
-            }
-        } else if (selectedColor) {
-            
-            console.log(x,y)
-            addBall(x, y);
-
-        }
-    }
-});
-
-
 canvas.addEventListener('mousedown', (event) => {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -704,20 +734,6 @@ canvas.addEventListener('mousemove', (event) => {
 let isDraggingLine = false;
 let selectedBall = null;
 
-canvas.addEventListener('dblclick', (event) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    balls.forEach(ball => {
-        const distance = Math.sqrt((x - ball.scaledX) ** 2 + (y - ball.scaledY) ** 2);
-        if (distance < ball.scaledSize / 2) {
-            selectedBall = ball;
-            isDraggingLine = true;
-            selectedBall.line = true;
-        }
-    });
-});
 
 
 canvas.addEventListener('mousemove', (event) => {
@@ -853,8 +869,16 @@ function handleClickOrTouch(event) {
             selectedColor = colors[index];
         }
     } else if (selectedColor && !isDragging) {
-        addBall(x, y);
-    }
+        console.log(currentMode)
+        if (currentMode != 'erase'){
+            addBall(x, y);
+        }
+
+
+        }
+    if (currentMode == 'erase'){
+    eraseBall(x,y);
+}
     isDragging = false; // Reset dragging state after handling click/touch
 }
 

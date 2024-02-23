@@ -21,6 +21,9 @@
         border: none;
         padding: 5px;
     }
+    #toolbar button.active {
+    border: 2px solid #555; /* Example style */
+}
     #toolbar button:hover, #toolbar button:focus {
         color: royalblue;
     }
@@ -36,15 +39,16 @@
 
 </head>
 <body>
-    <div id="toolbar">
+<div id="toolbar">
     <button id="drawMode" title="Draw Balls"><i class="fas fa-pencil-alt"></i></button>
     <button id="eraseMode" title="Erase Balls"><i class="fas fa-eraser"></i></button>
     <!-- Colored Ball Buttons -->
-    <button class="colorButton" data-color="red" title="Red Ball"><i class="fas fa-circle red"></i></button>
-    <button class="colorButton" data-color="yellow" title="Yellow Ball"><i class="fas fa-circle yellow"></i></button>
-    <button class="colorButton" data-color="white" title="White Ball"><i class="fas fa-circle white"></i></button>
-    <button class="colorButton" data-color="black" title="Black Ball"><i class="fas fa-circle black"></i></button>
+    <button class="colorMode" data-color="red" title="Red Ball"><i class="fas fa-circle" style="color: red;"></i></button>
+    <button class="colorMode" data-color="yellow" title="Yellow Ball"><i class="fas fa-circle" style="color: yellow;"></i></button>
+    <button class="colorMode" data-color="white" title="White Ball"><i class="fas fa-circle" style="color: white;"></i></button>
+    <button class="colorMode" data-color="black" title="Black Ball"><i class="fas fa-circle" style="color: black;"></i></button>
 </div>
+
 
     <canvas id="myCanvas" style="border:1px solid #000;"></canvas>
     <script src="script.js"></script>
