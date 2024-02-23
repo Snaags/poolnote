@@ -396,180 +396,6 @@ function addBall(x, y) {
 let draggedBall = null;
 let isDragging = false;
 
-canvas.addEventListener('mousedown', (event) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    balls.forEach(ball => {
-        const distance = Math.sqrt((x - ball.scaledX) ** 2 + (y - ball.scaledY) ** 2);
-        console.log(x, ball.scaledX, y,ball.scaledY)
-        if (distance < ball.scaledSize) {
-            draggedBall = ball;
-            isDragging = true;
-        }
-    });
-});
-
-canvas.addEventListener('mousemove', (event) => {
-
-
-    if (draggedBall && isDragging) {
-        const rect = canvas.getBoundingClientRect();
-        x = event.clientX - rect.left;
-        y = event.clientY - rect.top;
-
-        // Calculate new position
-        //
-        //
-        const tempX= (x - poolTable.xOffset) / poolTable.scaledWidth;
-        //
-        const tempY = (y - poolTable.yOffset) / poolTable.scaledLength;
- 
-        console.log(x,y)
-        if (!coordsHitsBoundary(x,y,draggedBall.size)) {
-            draggedBall.originalX = tempX
-            draggedBall.originalY =tempY//}
-            adjustBallPosition(draggedBall);
-
-        // Check for collisions with boundaries
-        if (ballHitsBoundary(draggedBall)) {
-            adjustBallPosition(draggedBall);
-        }
-        // Check for collisions with other balls
-        balls.forEach(ball => {
-            if (ball !== draggedBall && ballsCollide(draggedBall, ball)) {
-            const dx = ball.scaledX - draggedBall.scaledX;
-        const dy = ball.scaledY - draggedBall.scaledY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const overlap = (draggedBall.scaledSize / 2 + ball.scaledSize / 2) - distance;
-
-        if (distance !== 0) { // Avoid division by zero
-            const adjustX = (dx / distance) * overlap;
-            const adjustY = (dy / distance) * overlap;
-
-            ball.originalX += adjustX / poolTable.scaledWidth;
-            ball.originalY += adjustY / poolTable.scaledLength;
-            if (ballHitsBoundary(ball)) {
-                adjustBallPosition(ball);
-        }}
-        }});
-
-
-    }}
-  
-});
-
-
-let isDraggingLine = false;
-let selectedBall = null;
-
-canvas.addEventListener('dblclick', (event) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    balls.forEach(ball => {
-        const distance = Math.sqrt((x - ball.scaledX) ** 2 + (y - ball.scaledY) ** 2);
-        if (distance < ball.scaledSize / 2) {
-            selectedBall = ball;
-            isDraggingLine = true;
-            selectedBall.line = true;
-        }
-    });
-});
-
-
-canvas.addEventListener('mousemove', (event) => {
-
-        if (isDraggingLine && selectedBall) {
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
-
-        // Calculate the reflection of the line
-        calculateLineReflection(selectedBall, mouseX, mouseY);
-    }
-});
-
-canvas.addEventListener('mouseup', () => {
-    if (isDraggingLine) {
-        isDraggingLine = false;
-        selectedBall = null;
-    }
-});
-
-canvas.addEventListener('touchstart', (event) => {
-    event.preventDefault(); // Prevent scrolling
-    const touch = event.touches[0];
-    const rect = canvas.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-
-    balls.forEach(ball => {
-        const distance = Math.sqrt((x - ball.scaledX) ** 2 + (y - ball.scaledY) ** 2);
-        if (distance < ball.scaledSize) {
-            draggedBall = ball;
-            isDragging = true;
-        }
-    });
-}, { passive: false }); // Use passive: false to ensure the touch event doesn't get treated as passive.
-
-
-canvas.addEventListener('touchmove', (event) => {
-    if (draggedBall && isDragging) {
-        event.preventDefault(); // Prevent scrolling
-        const touch = event.touches[0];
-        const rect = canvas.getBoundingClientRect();
-        const x = touch.clientX - rect.left;
-        const y = touch.clientY - rect.top;
-
-        const tempX = (x - poolTable.xOffset) / poolTable.scaledWidth;
-        const tempY = (y - poolTable.yOffset) / poolTable.scaledLength;
-
-        if (!coordsHitsBoundary(x, y, draggedBall.size)) {
-            draggedBall.originalX = tempX;
-            draggedBall.originalY = tempY;
-            adjustBallPosition(draggedBall);
-        }
-
-        // Check for collisions with boundaries
-        if (ballHitsBoundary(draggedBall)) {
-            adjustBallPosition(draggedBall);
-        }
-
-        // Check for collisions with other balls
-        balls.forEach(ball => {
-            if (ball !== draggedBall && ballsCollide(draggedBall, ball)) {
-                const dx = ball.scaledX - draggedBall.scaledX;
-                const dy = ball.scaledY - draggedBall.scaledY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const overlap = (draggedBall.scaledSize / 2 + ball.scaledSize / 2) - distance;
-
-                if (distance !== 0) { // Avoid division by zero
-                    const adjustX = (dx / distance) * overlap;
-                    const adjustY = (dy / distance) * overlap;
-
-                    ball.originalX += adjustX / poolTable.scaledWidth;
-                    ball.originalY += adjustY / poolTable.scaledLength;
-                    if (ballHitsBoundary(ball)) {
-                        adjustBallPosition(ball);
-                    }
-                }
-            }
-        });
-    }
-}, { passive: false });
-
-canvas.addEventListener('touchend', () => {
-    isDragging = false;
-    draggedBall = null;
-    if (isDraggingLine) {
-        isDraggingLine = false;
-        selectedBall = null;
-    }
-}, { passive: false });
-
 
 function calculateLineReflection(ball, mouseX, mouseY) {
     // Direction from ball to mouse
@@ -803,6 +629,224 @@ canvas.addEventListener('click', (event) => {
         }
     }
 });
+
+
+canvas.addEventListener('mousedown', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    balls.forEach(ball => {
+        const distance = Math.sqrt((x - ball.scaledX) ** 2 + (y - ball.scaledY) ** 2);
+        console.log(x, ball.scaledX, y,ball.scaledY)
+        if (distance < ball.scaledSize) {
+            draggedBall = ball;
+            isDragging = true;
+        }
+    });
+});
+
+canvas.addEventListener('mousemove', (event) => {
+
+
+    if (draggedBall && isDragging) {
+        const rect = canvas.getBoundingClientRect();
+        x = event.clientX - rect.left;
+        y = event.clientY - rect.top;
+
+        // Calculate new position
+        //
+        //
+        const tempX= (x - poolTable.xOffset) / poolTable.scaledWidth;
+        //
+        const tempY = (y - poolTable.yOffset) / poolTable.scaledLength;
+ 
+        console.log(x,y)
+        if (!coordsHitsBoundary(x,y,draggedBall.size)) {
+            draggedBall.originalX = tempX
+            draggedBall.originalY =tempY//}
+            adjustBallPosition(draggedBall);
+
+        // Check for collisions with boundaries
+        if (ballHitsBoundary(draggedBall)) {
+            adjustBallPosition(draggedBall);
+        }
+        // Check for collisions with other balls
+        balls.forEach(ball => {
+            if (ball !== draggedBall && ballsCollide(draggedBall, ball)) {
+            const dx = ball.scaledX - draggedBall.scaledX;
+        const dy = ball.scaledY - draggedBall.scaledY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const overlap = (draggedBall.scaledSize / 2 + ball.scaledSize / 2) - distance;
+
+        if (distance !== 0) { // Avoid division by zero
+            const adjustX = (dx / distance) * overlap;
+            const adjustY = (dy / distance) * overlap;
+
+            ball.originalX += adjustX / poolTable.scaledWidth;
+            ball.originalY += adjustY / poolTable.scaledLength;
+            if (ballHitsBoundary(ball)) {
+                adjustBallPosition(ball);
+        }}
+        }});
+
+
+    }}
+  
+});
+
+
+let isDraggingLine = false;
+let selectedBall = null;
+
+canvas.addEventListener('dblclick', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    balls.forEach(ball => {
+        const distance = Math.sqrt((x - ball.scaledX) ** 2 + (y - ball.scaledY) ** 2);
+        if (distance < ball.scaledSize / 2) {
+            selectedBall = ball;
+            isDraggingLine = true;
+            selectedBall.line = true;
+        }
+    });
+});
+
+
+canvas.addEventListener('mousemove', (event) => {
+
+        if (isDraggingLine && selectedBall) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+
+        // Calculate the reflection of the line
+        calculateLineReflection(selectedBall, mouseX, mouseY);
+    }
+});
+
+canvas.addEventListener('mouseup', () => {
+    if (isDraggingLine) {
+        isDraggingLine = false;
+        selectedBall = null;
+    }
+});
+
+canvas.addEventListener('touchstart', (event) => {
+    event.preventDefault(); // Prevent scrolling
+    const touch = event.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    balls.forEach(ball => {
+        const distance = Math.sqrt((x - ball.scaledX) ** 2 + (y - ball.scaledY) ** 2);
+        if (distance < ball.scaledSize) {
+            draggedBall = ball;
+            isDragging = true;
+        }
+    });
+}, { passive: false }); // Use passive: false to ensure the touch event doesn't get treated as passive.
+
+
+canvas.addEventListener('touchmove', (event) => {
+    if (draggedBall && isDragging) {
+        event.preventDefault(); // Prevent scrolling
+        const touch = event.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+
+        const tempX = (x - poolTable.xOffset) / poolTable.scaledWidth;
+        const tempY = (y - poolTable.yOffset) / poolTable.scaledLength;
+
+        if (!coordsHitsBoundary(x, y, draggedBall.size)) {
+            draggedBall.originalX = tempX;
+            draggedBall.originalY = tempY;
+            adjustBallPosition(draggedBall);
+        }
+
+        // Check for collisions with boundaries
+        if (ballHitsBoundary(draggedBall)) {
+            adjustBallPosition(draggedBall);
+        }
+
+        // Check for collisions with other balls
+        balls.forEach(ball => {
+            if (ball !== draggedBall && ballsCollide(draggedBall, ball)) {
+                const dx = ball.scaledX - draggedBall.scaledX;
+                const dy = ball.scaledY - draggedBall.scaledY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const overlap = (draggedBall.scaledSize / 2 + ball.scaledSize / 2) - distance;
+
+                if (distance !== 0) { // Avoid division by zero
+                    const adjustX = (dx / distance) * overlap;
+                    const adjustY = (dy / distance) * overlap;
+
+                    ball.originalX += adjustX / poolTable.scaledWidth;
+                    ball.originalY += adjustY / poolTable.scaledLength;
+                    if (ballHitsBoundary(ball)) {
+                        adjustBallPosition(ball);
+                    }
+                }
+            }
+        });
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => {
+    isDragging = false;
+    draggedBall = null;
+    if (isDraggingLine) {
+        isDraggingLine = false;
+        selectedBall = null;
+    }
+}, { passive: false });
+
+
+
+// Consolidate click and touchend handling into a single function
+function handleClickOrTouch(event) {
+    // Determine if this is a touch event and prevent default if it is
+    const isTouch = event.type.startsWith('touch');
+    if (isTouch) {
+        event.preventDefault(); // Prevent default touch behavior (scrolling, zooming, etc.)
+    }
+
+    // Get the correct x and y coordinates based on the event type
+    const rect = canvas.getBoundingClientRect();
+    let x, y;
+    if (isTouch) {
+        // Use the first touch point for touch events
+        const touch = event.changedTouches[0];
+        x = touch.clientX - rect.left;
+        y = touch.clientY - rect.top;
+    } else {
+        // Use clientX and clientY directly for mouse events
+        x = event.clientX - rect.left;
+        y = event.clientY - rect.top;
+    }
+
+    // The logic for adding a ball or selecting from the color bar
+    if (x <= 40) { // Selection bar logic
+        const index = Math.floor((y - 20) / 40);
+        if (index >= 0 && index < colors.length && !isDragging) {
+            selectedColor = colors[index];
+        }
+    } else if (selectedColor && !isDragging) {
+        addBall(x, y);
+    }
+    isDragging = false; // Reset dragging state after handling click/touch
+}
+
+// Listen for clicks and touch ends to add balls or select colors
+canvas.addEventListener('click', handleClickOrTouch);
+canvas.addEventListener('touchend', handleClickOrTouch, { passive: false });
+
+// Remove the redundant click event listener that's directly adding balls
+
 
     function animate() {
         requestAnimationFrame(animate);
