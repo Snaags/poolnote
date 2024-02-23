@@ -732,6 +732,52 @@ function handleClick(event) {
 }
 
 
+// Adjust the existing drag start event listener for both mouse and touch
+canvas.addEventListener('mousedown', startDrag);
+canvas.addEventListener('touchstart', function(event) {
+    event.preventDefault(); // Prevent scrolling/zooming
+    startDrag(event.touches[0]); // Pass the first touch event
+}, { passive: false }); // Disable passive listening to allow preventDefault
+
+function startDrag(event) {
+    const rect = canvas.getBoundingClientRect();
+    let x = event.clientX - rect.left;
+    let y = event.clientY - rect.top;
+
+    // Your existing logic to select and start dragging a ball...
+}
+
+// Adjust the existing drag move event listener for both mouse and touch
+canvas.addEventListener('mousemove', drag);
+canvas.addEventListener('touchmove', function(event) {
+    event.preventDefault(); // Prevent scrolling/zooming
+    drag(event.touches[0]); // Pass the first touch event
+}, { passive: false });
+
+function drag(event) {
+    if (!isDragging) return; // Exit if we're not dragging
+
+    const rect = canvas.getBoundingClientRect();
+    let x = event.clientX - rect.left;
+    let y = event.clientY - rect.top;
+
+    // Your existing logic to move the dragged ball...
+}
+
+// Adjust the existing drag end event listener for both mouse and touch
+canvas.addEventListener('mouseup', endDrag);
+canvas.addEventListener('touchend', function(event) {
+    event.preventDefault(); // Might not always be needed for touchend
+    endDrag(event.changedTouches[0]); // Pass the touch event that ended
+}, { passive: false });
+
+function endDrag(event) {
+    isDragging = false; // Set your dragging flag to false
+
+    // Additional logic you might have to finalize the drag...
+}
+
+
 
 
     function animate() {
