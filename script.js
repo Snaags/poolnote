@@ -957,10 +957,83 @@ function handleClickOrTouch(event) {
 
         }
     if (currentMode == 'erase'){
-    eraseBall(x,y);
+    eraseBallOrLine(x, y);
 }
     isDragging = false; // Reset dragging state after handling click/touch
 }
+
+
+function isPointNearLine(clickX, clickY, line, tolerance = 10) {
+    for (let i = 0; i < line.length - 1; i++) {
+        const start = line[i];
+        const end = line[i + 1];
+        const dist = distanceToLineSegment(clickX, clickY, start.x, start.y, end.x, end.y);
+        if (dist < tolerance) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function distanceToLineSegment(px, py, x1, y1, x2, y2) {
+    const A = px - x1;
+    const B = py - y1;
+    const C = x2 - x1;
+    const D = y2 - y1;
+
+    const dot = A * C + B * D;
+    const len_sq = C * C + D * D;
+    let param = -1;
+    if (len_sq !== 0) {
+        param = dot / len_sq;
+    }
+
+    let xx, yy;
+
+    if (param < 0) {
+        xx = x1;
+        yy = y1;
+    } else if (param > 1) {
+        xx = x2;
+        yy = y2;
+    } else {
+        xx = x1 + param * C;
+        yy = y1 + param * D;
+    }
+
+    const dx = px - xx;
+    const dy = py - yy;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+
+function eraseBallOrLine(x, y) {
+    if (currentMode === 'erase') {
+        // Check for erasing balls
+        for (let i = 0; i < balls.length; i++) {
+            const dist = Math.sqrt(Math.pow(x - balls[i].scaledX, 2) + Math.pow(y - balls[i].scaledY, 2));
+            if (dist < balls[i].scaledSize / 2) {
+                balls.splice(i, 1); // Remove the ball if clicked on
+                return; // Stop checking if a ball is erased
+            }
+        }
+
+        // Check for erasing lines
+        for (let i = lines.length - 1; i >= 0; i--) {
+            if (isPointNearLine(x, y, lines[i])) {
+                lines.splice(i, 1); // Remove the line if clicked near
+                break; // Stop checking after erasing a line
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
 
 // Listen for clicks and touch ends to add balls or select colors
 canvas.addEventListener('click', handleClickOrTouch);
