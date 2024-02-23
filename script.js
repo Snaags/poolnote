@@ -894,7 +894,7 @@ canvas.addEventListener('touchend', handleClickOrTouch, { passive: false });
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         //drawPoolTable(ctx);
         poolTable.draw();
-        drawSelectionBar();
+        //drawSelectionBar();
 
         drawBalls();
     }
