@@ -12,7 +12,7 @@
         justify-content: center; /* Center items horizontally */
         align-items: center; /* Center items vertically (if needed) */
         flex-wrap: wrap; /* Wrap items to next line if toolbar width is exceeded */
-        margin-top: 10px;
+        margin-top: 5px;
     }
     #toolbar button {
         font-size: 24px;
@@ -20,10 +20,14 @@
         background: none;
 
         border: none;
-        padding: 5px;
+        padding: 2px;
     }
     #toolbar button.active {
-    border: 2px solid #555; /* Example style */
+  background-color: #f0f0f0; /* Light gray background */
+    border: none; /* Remove the border if previously set */
+    /* Additional styling to enhance the appearance */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: adds a subtle shadow for depth */
+    transition: background-color 0.3s ease; /* Optional: smooth transition for background color change */
 }
     #toolbar button:hover, #toolbar button:focus {
         color: royalblue;
@@ -51,7 +55,7 @@
 </div>
 
 
-    <canvas id="myCanvas" style="border:1px solid #000;"></canvas>
+    <canvas id="myCanvas" style="border:0px solid #000;"></canvas>
     <script src="script.js"></script>
 </body>
 </html>

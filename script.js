@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function resizeCanvas() {
-        canvas.width = window.innerWidth-30;
-        canvas.height = window.innerHeight-30;
+        canvas.width = window.innerWidth-2;
+        canvas.height = window.innerHeight;
         // Redraw the content if necessary
         //poolTable.calculateDimensions();   
     }
@@ -731,6 +731,83 @@ canvas.addEventListener('mousemove', (event) => {
 });
 
 
+//Line Drawing
+
+let isDrawingLine = false;
+let lineStartX = 0;
+let lineStartY = 0;
+let lines = []; // Array to hold arrays of line segments
+let currentLine = []; // Currently being drawn line
+
+
+canvas.addEventListener('mousedown', startDrawing);
+canvas.addEventListener('touchstart', startDrawing, { passive: false });
+
+canvas.addEventListener('mousemove', drawLine);
+canvas.addEventListener('touchmove', drawLine, { passive: false });
+
+function startDrawing(event) {
+    if (currentMode !== 'draw') return;
+
+    event.preventDefault();
+    const { x, y } = getEventCoordinates(event);
+
+    isDrawingLine = true;
+    currentLine = [{ x, y }]; // Start a new line with the initial point
+}
+
+function drawLine(event) {
+    if (!isDrawingLine || currentMode !== 'draw') return;
+
+    event.preventDefault();
+    const { x, y } = getEventCoordinates(event);
+
+    currentLine.push({ x, y }); // Add point to the current line
+
+    // Redraw only the last segment for efficiency
+    ctx.beginPath();
+    ctx.moveTo(currentLine[currentLine.length - 2].x, currentLine[currentLine.length - 2].y);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+function endDrawing() {
+    if (currentMode !== 'draw') return;
+    if (currentLine.length > 1) { // Only add lines with more than one point
+        lines.push(currentLine);
+    }
+    isDrawingLine = false;
+    currentLine = [];
+}
+
+canvas.addEventListener('mouseup', endDrawing);
+canvas.addEventListener('touchend', endDrawing, { passive: false });
+
+
+
+
+
+canvas.addEventListener('mouseup', endDrawing);
+canvas.addEventListener('touchend', endDrawing, { passive: false });
+
+
+function getEventCoordinates(event) {
+    const rect = canvas.getBoundingClientRect();
+    let x, y;
+    if (event.touches) {
+        x = event.touches[0].clientX - rect.left;
+        y = event.touches[0].clientY - rect.top;
+    } else {
+        x = event.clientX - rect.left;
+        y = event.clientY - rect.top;
+    }
+    return { x, y };
+}
+
+
+
+
+
 let isDraggingLine = false;
 let selectedBall = null;
 
@@ -842,6 +919,9 @@ canvas.addEventListener('touchend', () => {
 
 // Consolidate click and touchend handling into a single function
 function handleClickOrTouch(event) {
+        // Skip if in drawing mode
+    if (currentMode === 'draw') return;
+
     // Determine if this is a touch event and prevent default if it is
     const isTouch = event.type.startsWith('touch');
     if (isTouch) {
@@ -887,18 +967,30 @@ canvas.addEventListener('click', handleClickOrTouch);
 canvas.addEventListener('touchend', handleClickOrTouch, { passive: false });
 
 // Remove the redundant click event listener that's directly adding balls
+poolTable.draw();
 
+function redrawLines() {
+    lines.forEach(line => {
+        ctx.beginPath();
+        ctx.strokeStyle = "lightgray"; // Use selectedColor for the line color
+        ctx.lineWidth = 5; // Example line width
+        ctx.lineCap = 'round'; // Round ends for smoother lines
+        ctx.moveTo(line[0].x, line[0].y);
+        for (let i = 1; i < line.length; i++) {
+            ctx.lineTo(line[i].x, line[i].y);
+        }
+        ctx.stroke();
+    });
+}
 
-    function animate() {
-        requestAnimationFrame(animate);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        //drawPoolTable(ctx);
-        poolTable.draw();
-        //drawSelectionBar();
+function animate() {
+    requestAnimationFrame(animate);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    poolTable.draw();
+    redrawLines(); // Redraw all lines
 
-        drawBalls();
-    }
-
+    drawBalls();
+}
 
     animate();
 });
