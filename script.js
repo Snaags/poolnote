@@ -386,11 +386,16 @@ function drawPoolTable(ctx) {
     }
 
 function addBall(x, y) {
+    balls.forEach(ball => {
+        if ((ball.scaledX + ball.scaledSize*1.5> x > ball.scaledX -ball.scaledSize*1.5)&&(ball.scaledY + ball.scaledSize*1.5> y > ball.scaledY -ball.scaledSize*1.5)){
+            return;
+        }})
+    if (!isDragging && !dragStarted && selectedColor) {
     if (selectedColor && (x > poolTable.xOffset && x < poolTable.xOffset + poolTable.scaledWidth ) && (y > poolTable.yOffset && y < poolTable.yOffset + poolTable.scaledLength)) {
         const originalX = (x - poolTable.xOffset) / poolTable.scaledWidth; // Percentage of the width
         const originalY = (y - poolTable.yOffset) / poolTable.scaledLength; // Percentage of the length
         balls.push(new Ball(selectedColor, originalX, originalY));
-    }
+    }}
 }
 
 let draggedBall = null;
@@ -734,6 +739,8 @@ canvas.addEventListener('mouseup', () => {
     }
 });
 
+let dragStarted = false;
+
 canvas.addEventListener('touchstart', (event) => {
     event.preventDefault(); // Prevent scrolling
     const touch = event.touches[0];
@@ -752,6 +759,12 @@ canvas.addEventListener('touchstart', (event) => {
 
 
 canvas.addEventListener('touchmove', (event) => {
+    if (draggedBall) {
+        if (!dragStarted) {
+            dragStarted = true; // Mark that dragging has started
+        }}
+        isDragging = true;
+
     if (draggedBall && isDragging) {
         event.preventDefault(); // Prevent scrolling
         const touch = event.touches[0];
@@ -797,6 +810,10 @@ canvas.addEventListener('touchmove', (event) => {
 }, { passive: false });
 
 canvas.addEventListener('touchend', () => {
+        setTimeout(() => { // Delay to differentiate between drag end and tap
+        isDragging = false;
+        dragStarted = false;
+    }, 100); 
     isDragging = false;
     draggedBall = null;
     if (isDraggingLine) {
