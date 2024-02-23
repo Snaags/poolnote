@@ -4,8 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Graphics with JavaScript</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<style>
+    #toolbar {
+        display: flex; /* Use Flexbox */
+        justify-content: center; /* Center items horizontally */
+        align-items: center; /* Center items vertically (if needed) */
+        flex-wrap: wrap; /* Wrap items to next line if toolbar width is exceeded */
+        margin-top: 10px;
+    }
+    #toolbar button {
+        font-size: 24px;
+        cursor: pointer;
+        background: none;
+
+        border: none;
+        padding: 5px;
+    }
+    #toolbar button:hover, #toolbar button:focus {
+        color: royalblue;
+    }
+    .fa-circle.red { color: red; }
+    .fa-circle.yellow { color: yellow; }
+    .fa-circle.white { color: white; }
+    .fa-circle.black { color: black; }
+    /* Ensure white circles are visible */
+    .fa-circle.white:before {
+        text-shadow: 0 0 2px #000;
+    }
+</style>
+
 </head>
 <body>
+    <div id="toolbar">
+    <button id="drawMode" title="Draw Balls"><i class="fas fa-pencil-alt"></i></button>
+    <button id="eraseMode" title="Erase Balls"><i class="fas fa-eraser"></i></button>
+    <!-- Colored Ball Buttons -->
+    <button class="colorButton" data-color="red" title="Red Ball"><i class="fas fa-circle red"></i></button>
+    <button class="colorButton" data-color="yellow" title="Yellow Ball"><i class="fas fa-circle yellow"></i></button>
+    <button class="colorButton" data-color="white" title="White Ball"><i class="fas fa-circle white"></i></button>
+    <button class="colorButton" data-color="black" title="Black Ball"><i class="fas fa-circle black"></i></button>
+</div>
+
     <canvas id="myCanvas" style="border:1px solid #000;"></canvas>
     <script src="script.js"></script>
 </body>
